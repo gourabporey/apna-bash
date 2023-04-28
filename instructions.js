@@ -2,31 +2,43 @@ const fs = require("fs");
 
 const ls = function({pwd}) {
   const contents = fs.readdirSync(pwd);
+  const isVisible = /^[^.]/;
+
   const visibleContents = contents.filter(function(content) {
-    return /^[^.]/.test(content);
+    return isVisible.test(content);
   }).join(" ");
 
-  console.log(visibleContents);
+  const output = {
+    message: visibleContents,
+    code: 0,
+  };
 
-  return {pwd};
+  return {pwd, output};
 };
 
 const pwd = function({pwd}) {
-  console.log(pwd);
-  return {pwd};
+  const output = {
+    message: pwd,
+    code: 0,
+  };
+
+  return {pwd, output};
 };
 
 const cd = function({pwd}, target) {
   const path = `${pwd}/${target}`;
+  const output = {};
 
   if(fs.existsSync(path)) {
-    console.log(path);
+    output.message = path;
+    output.code = 0;
     pwd = path;
   } else {
-    console.error(`cd: ${target}: No such file or directory`);
+    output.message = `cd: ${target}: No such file or directory`;
+    output.code = 1;
   }
 
-  return {pwd};
+  return {pwd, output};
 };
 
 const instructions = {ls, pwd, cd};

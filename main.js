@@ -1,9 +1,17 @@
 const fs = require("fs");
-const {execute} = require("./interpreter.js");
+const {execute} = require("./apna-bash.js");
 
-const main = function() {
-  const commands = fs.readFileSync(process.argv[2], "utf-8");
-  return execute(commands);
+const display = function(outputs) {
+  outputs.forEach(function(output) {
+    const print = output.code === 1 ? console.error : console.log;
+    print(`\n${output.message}`);
+  });
 };
 
-main();
+const main = function(script) {
+  const program = fs.readFileSync(script, "utf-8");
+  const outputs = execute(program);
+  display(outputs);
+};
+
+main(process.argv[2]);

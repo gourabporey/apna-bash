@@ -10,11 +10,7 @@ const parse = function(commands) {
   const tokens = tokenize(commands);
 
   return tokens.reduce(function(instructions, token) {
-    if(token.length === 1) {
-      return [...instructions, {command: token[0]}];
-    }
-
-    return [...instructions, {command: token[0], argument: token[1]}];
+    return [...instructions, {command: token[0], argument: token.slice(1)}];
   }, []);
 };
 
@@ -25,13 +21,22 @@ const execute = function(commands) {
     pwd: process.env.PWD
   };
 
+  const outputs = [];
+
   parsedText.forEach(function(args) {
-    environment = isValidInstruction(args.command) ? 
-      instructions[args.command](environment, args.argument) :
-      environment;
+    if(!isValidInstruction(args.command)) {
+      outputs.push({
+        message: `apna-bash: ${args.command} : No such command`,
+        code: 1
+      });
+    } else {
+      const {pwd, output} = instructions[args.command](environment, args.argument);
+      environment.pwd = pwd;
+      outputs.push(output);
+    }
   });
 
-  return environment;
+  return outputs;
 };
 
 exports.execute = execute;
