@@ -1,6 +1,4 @@
-ls
+cd ..
 pwd
-cd demo-dir
-ls
-cd personal
+cd ./
 pwd
