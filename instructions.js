@@ -8,21 +8,11 @@ const ls = function({pwd}) {
     return isVisible.test(content);
   }).join(" ");
 
-  const output = {
-    message: visibleContents,
-    code: 0,
-  };
-
-  return {pwd, output};
+  return {pwd, output: {message: visibleContents, code: 0}};
 };
 
 const pwd = function({pwd}) {
-  const output = {
-    message: pwd,
-    code: 0,
-  };
-
-  return {pwd, output};
+  return {pwd, output: {message: pwd, code: 0}};
 };
 
 const cd = function({pwd}, target) {
@@ -30,9 +20,8 @@ const cd = function({pwd}, target) {
   const output = {};
 
   if(fs.existsSync(path)) {
-    output.message = path;
     output.code = 0;
-    pwd = path;
+    pwd = `${path}`;
   } else {
     output.message = `cd: ${target}: No such file or directory`;
     output.code = 1;

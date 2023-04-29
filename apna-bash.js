@@ -21,20 +21,15 @@ const execute = function(commands) {
     pwd: process.env.PWD
   };
 
-  const outputs = [];
-
-  parsedText.forEach(function(args) {
+  const outputs = parsedText.reduce(function(outputs, args) {
     if(!isValidInstruction(args.command)) {
-      outputs.push({
-        message: `apna-bash: ${args.command} : No such command`,
-        code: 1
-      });
+      return [...outputs, {message: `apna-bash: ${args.command} : No such command`, code: 1}];
     } else {
       const {pwd, output} = instructions[args.command](environment, args.argument);
       environment.pwd = pwd;
-      outputs.push(output);
+      return [...outputs, output];
     }
-  });
+  }, []);
 
   return outputs;
 };

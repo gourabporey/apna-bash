@@ -2,5 +2,5 @@ ls
 pwd
 cd demo-dir
 ls
-cd personal-things
+cd personal
 pwd
