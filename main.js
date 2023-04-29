@@ -1,20 +1,21 @@
 const fs = require("fs");
-const {execute} = require("./apna-bash.js");
+const {run} = require("./apna-bash.js");
 
-const display = function(outputs) {
-  outputs.forEach(function(output) {
-    const print = output.code === 1 ? console.error : console.log;
-    if(output.message !== undefined) {
-      print(`\n${output.message}`);
+const display = function(log) {
+  log.forEach(function(result) {
+    const print = result.output.code === 0 ? console.log : console.error;
+
+    if(result.output.message !== undefined) {
+      print(`\n${result.output.message}`);
     }
   });
 };
 
 const main = function() {
-  const script = process.argv[2]; 
-  const program = fs.readFileSync(script, "utf-8");
-  const outputs = execute(program);
-  display(outputs);
+  const scriptFile = process.argv[2]; 
+  const sourceCode = fs.readFileSync(scriptFile, "utf-8");
+  const {environment, log} = run(sourceCode);
+  display(log);
 };
 
 main();

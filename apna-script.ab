@@ -1,4 +1,7 @@
+ls
+pwd
 cd ..
+ls
 pwd
 cd ./
 pwd

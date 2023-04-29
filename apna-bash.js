@@ -14,24 +14,29 @@ const parse = function(commands) {
   }, []);
 };
 
-const execute = function(commands) {
-  const parsedText = parse(commands);
+const getFailureOutput = function(command) {
+  return {message: `apna-bash: ${args.command} : No such command`, code: 1};
+};
 
+const execute = function({environment, log}, args) {
+  if(!isValidInstruction(args.command)) {
+    return {environment, log: [...log, {command: args, output: getFailureOutput(args.command)}]};
+  }
+
+  const command = instructions[args.command];
+  const {pwd, output} = command(environment, args.argument);
+  environment.pwd = pwd;
+  return {environment, log: [...log, {command: args, output}]};
+};
+
+const run = function(script) {
+  const parsedText = parse(script);
+  const log = [];
   let environment = {
     pwd: process.env.PWD
   };
 
-  const outputs = parsedText.reduce(function(outputs, args) {
-    if(!isValidInstruction(args.command)) {
-      return [...outputs, {message: `apna-bash: ${args.command} : No such command`, code: 1}];
-    } else {
-      const {pwd, output} = instructions[args.command](environment, args.argument);
-      environment.pwd = pwd;
-      return [...outputs, output];
-    }
-  }, []);
-
-  return outputs;
+  return parsedText.reduce(execute, {environment, log});
 };
 
-exports.execute = execute;
+exports.run = run;
