@@ -1,5 +1,5 @@
 const fs = require("fs");
-const {run} = require("./apna-bash.js");
+const {run} = require("./src/apna-bash.js");
 
 const display = function(log) {
   log.forEach(function(result) {
@@ -14,7 +14,7 @@ const display = function(log) {
 const main = function() {
   const scriptFile = process.argv[2]; 
   const sourceCode = fs.readFileSync(scriptFile, "utf-8");
-  const {environment, log} = run(sourceCode);
+  const { log } = run(sourceCode);
   display(log);
 };
 
