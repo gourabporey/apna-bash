@@ -1,62 +1,40 @@
-const fs = require("fs");
+class CommandHandler {
+   constructor(pathHandler, environment, fileSystem) {
+      this.pathHandler = pathHandler;
+      this.environment = environment;
+      this.fileSystem = fileSystem;
+   }
 
-const isVisible = function(path) {
-  return /^[^.]/.test(path);
-};
+   ls() {
+      const contents = this.fileSystem.readdirSync(this.environment.pwd);
+      const visibleContents = contents.filter(this.pathHandler.isVisible).join(' ');
 
-const ls = function(environment) {
-  const contents = fs.readdirSync(environment.pwd);
-  const visibleContents = contents.filter(isVisible).join(" ");
+      return { environment: this.environment, output: { message: visibleContents, code: 0 } };
+   }
 
-  return {environment, output: {message: visibleContents, code: 0}};
-};
+   pwd() {
+      return { environment: this.environment, output: { message: this.environment.pwd, code: 0 } }
+   }
 
-const pwd = function(environment) {
-  return {environment, output: {message: environment.pwd, code: 0}};
-};
+   throwError(path) {
+      return `cd: ${path}: No such file or directory`;
+   };
 
-const normalizePath = function(path) {
-  const pathTokens = path.split("/");
-  const normalizePathTokens = [];
+   cd(target) {
+      const path = this.pathHandler.isAbsolute(target) ?
+         target : this.pathHandler.normalizePath(`${this.environment.pwd}/${target}`);
 
-  pathTokens.forEach(function(token) {
-    if(token === "..") {
-      normalizePathTokens.pop();
-      return;
-    } 
+      if (this.fileSystem.existsSync(path)) {
+         this.environment.pwd = path;
+         return { environment: { pwd: path }, output: { code: 0 } };
+      };
 
-    if(token != ".") {
-      normalizePathTokens.push(token);
-    }
-  });
+      return { environment: this.environment, output: { code: 1, message: this.throwError(path) } };
+   }
 
-  return normalizePathTokens.join("/");
-};
+   isValidCommand(command) {
+      return command in this;
+   }
+}
 
-const isAbsolute = function(path) {
-  return `${path}`.startsWith("/");
-};
-
-const throwError = function(path) {
-  return `cd: ${path}: No such file or directory`;
-};
-
-const cd = function(environment, target) {
-  const path = isAbsolute(target) ? target : normalizePath(`${environment.pwd}/${target}`);
-  const output = {};
-
-  if(fs.existsSync(path)) {
-    return {environment: {pwd: path}, output: {code: 0}};
-  };
-
-  return {environment, output: {code: 1, message: throwError(path)}};
-};
-
-const commands = {ls, pwd, cd};
-
-const isValidCommand = function(instruction) {
-  return commands[instruction] !== undefined;
-};
-
-exports.commands = commands;
-exports.isValidCommand = isValidCommand;
+exports.CommandHandler = CommandHandler;
